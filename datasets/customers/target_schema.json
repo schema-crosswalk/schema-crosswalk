@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "customer.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["customer_id", "full_name"],
+  "properties": {
+    "customer_id": {
+      "type": "string",
+      "description": "Stable customer identifier. Kept as a string to preserve leading zeros.",
+      "examples": ["001", "002"]
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Customer's full name in title case, first and last joined by a space.",
+      "examples": ["Alice Smith"]
+    },
+    "gender": {
+      "type": "string",
+      "description": "Normalized gender value.",
+      "enum": ["male", "female"]
+    },
+    "price_usd": {
+      "type": ["number", "null"],
+      "description": "Signup price in US dollars, converted from an integer cents column.",
+      "examples": [12.99]
+    },
+    "signed_up_at": {
+      "type": ["string", "null"],
+      "description": "Signup timestamp (ISO-8601, UTC), converted from a Unix epoch-seconds column.",
+      "examples": ["2024-01-01T00:00:00"]
+    },
+    "phone": {
+      "type": ["string", "null"],
+      "description": "Contact phone number, kept verbatim as a string (ID-safe).",
+      "examples": ["0044123"]
+    },
+    "country": {
+      "type": "string",
+      "description": "Country code. Not present in the source; defaulted.",
+      "examples": ["US"]
+    }
+  }
+}

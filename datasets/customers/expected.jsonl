@@ -1,0 +1,3 @@
+{"customer_id":"001","full_name":"Alice Smith","gender":"female","price_usd":12.99,"signed_up_at":"2024-01-01T00:00:00","phone":"0044123","country":"US"}
+{"customer_id":"002","full_name":"Bob","gender":"male","price_usd":5.0,"signed_up_at":"2024-01-02T00:00:00","phone":"0044987","country":"US"}
+{"customer_id":"003","full_name":"Carol Davis","gender":"female","price_usd":null,"signed_up_at":"2024-01-03T00:00:00","phone":"","country":"US"}

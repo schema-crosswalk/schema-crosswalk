@@ -1,0 +1,109 @@
+{
+  "grammar_version": 1,
+  "semantics_version": 1,
+  "target_schema_id": "customer.v1",
+  "source_fingerprint": "sha256:golden-customers-v1",
+  "rules": [
+    {
+      "target_field": "customer_id",
+      "primitive": "rename_field",
+      "sources": ["id"],
+      "params": {},
+      "confidence": 0.99,
+      "rationale": "Direct copy; keep as string to preserve the leading zero."
+    },
+    {
+      "target_field": "__name",
+      "primitive": "concat_fields",
+      "sources": ["first", "last"],
+      "params": { "separator": " ", "skip_null": true },
+      "confidence": 0.9,
+      "rationale": "Join first and last name before normalizing."
+    },
+    {
+      "target_field": "full_name",
+      "primitive": "normalize_string",
+      "sources": ["__name"],
+      "params": { "ops": ["collapse_whitespace", "title"] },
+      "confidence": 0.9,
+      "rationale": "Collapse the stray whitespace and title-case the joined name."
+    },
+    {
+      "target_field": "gender",
+      "primitive": "map_enum_value",
+      "sources": ["gender"],
+      "params": {
+        "mapping": { "M": "male", "F": "female" },
+        "case_insensitive": true,
+        "unmatched": "null"
+      },
+      "confidence": 0.95,
+      "rationale": "Map the single-letter code to the target enum, case-insensitively."
+    },
+    {
+      "target_field": "price_usd",
+      "primitive": "arithmetic",
+      "sources": ["price_cents"],
+      "params": {
+        "ops": [{ "op": "divide", "operand": 100 }],
+        "round": 2,
+        "on_error": "null"
+      },
+      "confidence": 0.9,
+      "rationale": "Convert integer cents to dollars; a blank cell coerces to null."
+    },
+    {
+      "target_field": "__epoch",
+      "primitive": "cast_type",
+      "sources": ["signed_up"],
+      "params": { "to": "integer", "on_error": "null" },
+      "confidence": 0.9,
+      "rationale": "Parse the epoch string to an integer before the datetime cast."
+    },
+    {
+      "target_field": "signed_up_at",
+      "primitive": "cast_type",
+      "sources": ["__epoch"],
+      "params": { "to": "datetime", "unit": "seconds", "on_error": "null" },
+      "confidence": 0.9,
+      "rationale": "Convert Unix epoch seconds to an ISO-8601 UTC datetime."
+    },
+    {
+      "target_field": "phone",
+      "primitive": "rename_field",
+      "sources": ["phone"],
+      "params": {},
+      "confidence": 0.99,
+      "rationale": "Direct copy; keep verbatim to preserve leading zeros."
+    },
+    {
+      "target_field": "country",
+      "primitive": "default_value",
+      "sources": [],
+      "params": { "value": "US" },
+      "confidence": 0.6,
+      "rationale": "Not present in the source; default to US."
+    }
+  ],
+  "unmapped_target_fields": [],
+  "field_status": {
+    "customer_id": "auto_apply",
+    "full_name": "auto_apply",
+    "gender": "auto_apply",
+    "price_usd": "auto_apply",
+    "signed_up_at": "auto_apply",
+    "phone": "auto_apply",
+    "country": "auto_apply"
+  },
+  "metadata": {
+    "confidence_by_field": {
+      "customer_id": 0.99,
+      "full_name": 0.9,
+      "gender": 0.95,
+      "price_usd": 0.9,
+      "signed_up_at": 0.9,
+      "phone": 0.99,
+      "country": 0.6
+    }
+  }
+}

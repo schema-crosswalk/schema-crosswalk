@@ -24,17 +24,20 @@ reproducible, and testable before it touches production data.
 
 ## Status
 
-> **Pre-alpha.** The primitive grammar and the public API surface are in place; the
-> deterministic executor and the model backends are being implemented. The
-> [Quickstart](#quickstart) Python example below is the **target API** — treat it as the
-> shape we are building toward, not a promise of what runs today.
+> **Pre-alpha.** The primitive grammar and the **deterministic executor** are live today: given
+> a mapping and a source file, `crosswalk execute` runs the full grammar — all 11 primitives,
+> the coercion table, composition, and per-field failure policies — and is exercised by a
+> golden-regression fixture (see the [Quickstart](#quickstart)). The profiler, validator, and
+> the LLM proposer are still being implemented, so the *end-to-end* [Python workflow](#quickstart)
+> remains a target API for now; the executor half of it is real.
 
 | Component | State | Ships in |
 |---|---|---|
 | Grammar manifest (`crosswalk primitives`) | ✅ works today | — |
+| Executor (`crosswalk execute`) | ✅ works today | Phase 1 |
+| Golden-regression harness (`datasets/`) | ✅ works today | Phase 1 |
 | Schema profiler (`profile`) | 🚧 in progress | Phase 1 |
 | Validator (`validate`) | 🚧 in progress | Phase 1 |
-| Executor (`execute`) | 🚧 in progress | Phase 1 |
 | Review / approve flow (`review`, `approve`) | 🚧 in progress | Phase 2 |
 | Mapping proposer + backends (`propose`) | 🚧 in progress | Phase 2 |
 
@@ -114,20 +117,29 @@ report  = cw.validate(mapping, target_schema=SCHEMA) # structural + confidence g
 records = cw.execute(mapping, "customers.csv")       # deterministic, no LLM
 ```
 
-**CLI.** The grammar manifest is live today:
+**CLI.** The grammar manifest and the executor are live today. With a mapping in hand you can
+run a messy source file through the deterministic engine right now — the repo ships a golden
+fixture under [`datasets/customers/`](datasets/customers/) you can execute:
 
 ```bash
 uv run crosswalk primitives          # list the 11 grammar primitives
 uv run crosswalk primitives --json   # emit the raw manifest as JSON
+
+# Deterministic execution — no LLM, byte-identical output every run:
+uv run crosswalk execute \
+  --mapping datasets/customers/mapping.json \
+  datasets/customers/source.csv --out out.jsonl
+# -> out.jsonl matches datasets/customers/expected.jsonl exactly
 ```
 
-The remaining subcommands are wired into the CLI and land with the executor:
+`execute` structurally checks the mapping (version pins, arity, param schemas, backward-only
+composition refs) and fails closed on a bad document. The steps that produce a mapping in the
+first place need the profiler and LLM proposer, and land next:
 
 ```bash
 uv run crosswalk profile  customers.csv > profile.json                        # planned
 uv run crosswalk propose  profile.json --target schema.json > mapping.json    # planned
 uv run crosswalk validate mapping.json --target schema.json                   # planned
-uv run crosswalk execute  mapping.json customers.csv > out.jsonl              # planned
 ```
 
 ## The primitive grammar
