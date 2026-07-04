@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:map_enum_value",
+  "title": "map_enum_value params",
+  "type": "object",
+  "required": ["mapping"],
+  "additionalProperties": false,
+  "properties": {
+    "mapping": {
+      "type": "object",
+      "maxProperties": 10000,
+      "additionalProperties": { "type": ["string", "number", "boolean", "null"] }
+    },
+    "case_insensitive": { "type": "boolean", "default": false },
+    "unmatched": {
+      "enum": ["null", "passthrough", "default", "fail"],
+      "default": "null"
+    },
+    "default": {}
+  }
+}

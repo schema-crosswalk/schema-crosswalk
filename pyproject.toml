@@ -1,0 +1,85 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "schema-crosswalk"
+version = "0.0.1"
+description = "Grammar-constrained schema mapping engine: an LLM proposes a mapping, a deterministic engine executes it."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "schema-crosswalk contributors" }]
+keywords = ["schema", "mapping", "etl", "llm", "structured-output", "data-engineering"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pydantic>=2.6",
+    "jsonschema>=4.21",
+]
+
+[project.urls]
+Homepage = "https://github.com/schema-crosswalk/schema-crosswalk"
+Documentation = "https://github.com/schema-crosswalk/schema-crosswalk/blob/main/docs/design.md"
+Source = "https://github.com/schema-crosswalk/schema-crosswalk"
+
+[project.optional-dependencies]
+# Model backends are optional extras — the core library imports and runs without any of them.
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.40"]
+outlines = ["outlines>=0.1"]
+xgrammar = ["xgrammar>=0.1"]
+# Non-backtracking regex engine for split_field; a capped pure-Python fallback is used otherwise.
+re2 = ["google-re2>=1.1"]
+
+[project.scripts]
+crosswalk = "schema_crosswalk.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "mypy>=1.9",
+    "ruff>=0.6",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/schema_crosswalk"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "TID", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["schema_crosswalk"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+# Optional backend SDKs are not installed in the base env; ignore their missing stubs.
+module = ["anthropic.*", "openai.*", "outlines.*", "xgrammar.*", "re2.*", "jsonschema.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+xfail_strict = true

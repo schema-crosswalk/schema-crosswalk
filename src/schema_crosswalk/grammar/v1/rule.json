@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:rule",
+  "title": "MappingRule",
+  "description": "One entry in MappingDocument.rules. `params` is validated against the primitive-specific schema in ./params/<primitive>.json (see design.md 4.2).",
+  "type": "object",
+  "required": ["target_field", "primitive", "sources", "params", "confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "target_field": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Output field. A leading '__' marks an intermediate field, dropped before target-schema validation."
+    },
+    "primitive": {
+      "enum": [
+        "rename_field",
+        "cast_type",
+        "normalize_string",
+        "arithmetic",
+        "map_enum_value",
+        "concat_fields",
+        "split_field",
+        "coalesce",
+        "default_value",
+        "nested_extract",
+        "nested_flatten"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Source field refs (dotted paths). May reference an earlier rule's target_field (backward-only composition)."
+    },
+    "params": {
+      "type": "object",
+      "description": "Primitive-specific parameters; validated against ./params/<primitive>.json."
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "rationale": {
+      "type": "string",
+      "description": "Optional model explanation; ignored by the executor."
+    }
+  }
+}

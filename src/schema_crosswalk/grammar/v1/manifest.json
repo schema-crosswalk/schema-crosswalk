@@ -1,0 +1,18 @@
+{
+  "grammar_version": 1,
+  "semantics_version": 1,
+  "description": "schema-crosswalk primitive grammar v1. Source of truth for the primitive set and source arity (design.md 4.1). `arity` is [min, max]; null max means unbounded.",
+  "primitives": {
+    "rename_field":     { "arity": [1, 1],    "summary": "Copy a source field to a target field unchanged." },
+    "cast_type":        { "arity": [1, 1],    "summary": "Coerce a value to a target scalar type." },
+    "normalize_string": { "arity": [1, 1],    "summary": "Apply an ordered list of enumerated string ops." },
+    "arithmetic":       { "arity": [1, 1],    "summary": "Apply an ordered list of enumerated numeric ops with constant operands." },
+    "map_enum_value":   { "arity": [1, 1],    "summary": "Map source categoricals to target enum values via lookup table." },
+    "concat_fields":    { "arity": [2, null], "summary": "Join source fields into one string with a separator." },
+    "split_field":      { "arity": [1, 1],    "summary": "Extract one component of a string split by delimiter/regex." },
+    "coalesce":         { "arity": [2, null], "summary": "First non-null of an ordered list of sources, with optional default." },
+    "default_value":    { "arity": [0, 1],    "summary": "Emit a constant, or fill when the optional source is null/missing." },
+    "nested_extract":   { "arity": [1, 1],    "summary": "Pull a value from a nested path in a structured source." },
+    "nested_flatten":   { "arity": [1, 1],    "summary": "Serialize a nested object/array to a JSON string for a flat target." }
+  }
+}

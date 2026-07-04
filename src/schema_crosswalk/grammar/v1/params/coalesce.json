@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:coalesce",
+  "title": "coalesce params",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "treat_empty_string_as_null": { "type": "boolean", "default": true },
+    "default": {}
+  }
+}

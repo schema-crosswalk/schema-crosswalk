@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:concat_fields",
+  "title": "concat_fields params",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "separator": { "type": "string", "default": " " },
+    "skip_null": { "type": "boolean", "default": true }
+  }
+}

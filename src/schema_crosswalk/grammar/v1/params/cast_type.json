@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:cast_type",
+  "title": "cast_type params",
+  "type": "object",
+  "required": ["to"],
+  "additionalProperties": false,
+  "properties": {
+    "to": { "enum": ["string", "integer", "number", "boolean", "date", "datetime"] },
+    "format": {
+      "type": "string",
+      "description": "strptime/strftime pattern for date|datetime."
+    },
+    "unit": {
+      "enum": ["seconds", "millis"],
+      "description": "For integer->datetime epoch conversion."
+    },
+    "on_error": { "enum": ["null", "fail", "default"], "default": "null" },
+    "default": {}
+  }
+}

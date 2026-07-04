@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:arithmetic",
+  "title": "arithmetic params",
+  "type": "object",
+  "required": ["ops"],
+  "additionalProperties": false,
+  "properties": {
+    "ops": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "required": ["op", "operand"],
+        "additionalProperties": false,
+        "properties": {
+          "op": { "enum": ["add", "subtract", "multiply", "divide"] },
+          "operand": { "type": "number" }
+        }
+      }
+    },
+    "round": {
+      "type": "integer",
+      "description": "Decimal places for the final result; omit for no rounding."
+    },
+    "on_error": { "enum": ["null", "fail", "default"], "default": "null" },
+    "default": {}
+  }
+}

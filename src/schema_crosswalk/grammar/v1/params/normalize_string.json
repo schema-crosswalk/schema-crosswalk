@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:normalize_string",
+  "title": "normalize_string params",
+  "type": "object",
+  "required": ["ops"],
+  "additionalProperties": false,
+  "properties": {
+    "ops": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "enum": [
+          "trim",
+          "ltrim",
+          "rtrim",
+          "lower",
+          "upper",
+          "title",
+          "collapse_whitespace",
+          "strip_punctuation",
+          "digits_only"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments
+.venv/
+venv/
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# uv
+# (uv.lock IS committed; the venv is not)
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Local crosswalk cache
+.crosswalk-cache/

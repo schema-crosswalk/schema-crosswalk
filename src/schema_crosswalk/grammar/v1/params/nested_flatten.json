@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:nested_flatten",
+  "title": "nested_flatten params",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "encoding": { "enum": ["json"], "default": "json" }
+  }
+}

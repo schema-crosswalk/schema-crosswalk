@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crosswalk:v1:params:nested_extract",
+  "title": "nested_extract params",
+  "type": "object",
+  "required": ["path"],
+  "additionalProperties": false,
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "JSONPath-lite: dot + [index], e.g. addr.geo[0].lat."
+    },
+    "on_missing": { "enum": ["null", "fail"], "default": "null" }
+  }
+}
