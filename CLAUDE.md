@@ -84,6 +84,9 @@ is wrong — stop and reconsider rather than reaching across the boundary.
   (see the `on_error` / `unmatched` / `on_missing` params), not swallowed.
 - Small, single-purpose pure functions. Keep the executor's per-primitive logic isolated and
   individually testable.
+- **Minimal in-function comments.** Only comment complex logic or the *why* (a design-doc
+  reference, a non-obvious invariant, a footgun being guarded) — never narrate the *what* that
+  the code already states. Prefer a clear name or a module/function docstring over inline prose.
 - Match the surrounding code's conventions once the codebase exists.
 
 ## Typing (strict)

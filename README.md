@@ -24,22 +24,23 @@ reproducible, and testable before it touches production data.
 
 ## Status
 
-> **Pre-alpha.** The primitive grammar and the **deterministic executor** are live today: given
-> a mapping and a source file, `crosswalk execute` runs the full grammar — all 11 primitives,
-> the coercion table, composition, and per-field failure policies — and is exercised by a
-> golden-regression fixture (see the [Quickstart](#quickstart)). The profiler, validator, and
-> the LLM proposer are still being implemented, so the *end-to-end* [Python workflow](#quickstart)
-> remains a target API for now; the executor half of it is real.
+> **Pre-alpha.** The full pipeline runs end-to-end today: point `crosswalk propose` at a messy
+> CSV/JSON and a target schema, an LLM selects grammar primitives, the validator gates each field
+> on confidence, and the deterministic executor produces byte-identical output. The profiler,
+> validator, and executor are pure and covered by tests; the LLM proposer ships one backend
+> (Anthropic) as an optional extra. Review/approve UX and additional backends are next.
 
 | Component | State | Ships in |
 |---|---|---|
 | Grammar manifest (`crosswalk primitives`) | ✅ works today | — |
+| Schema profiler (`crosswalk profile`) | ✅ works today | Phase 1 |
+| Validator + confidence gating (`crosswalk validate`) | ✅ works today | Phase 1 |
 | Executor (`crosswalk execute`) | ✅ works today | Phase 1 |
 | Golden-regression harness (`datasets/`) | ✅ works today | Phase 1 |
-| Schema profiler (`profile`) | 🚧 in progress | Phase 1 |
-| Validator (`validate`) | 🚧 in progress | Phase 1 |
+| Mapping proposer + Anthropic backend (`crosswalk propose`) | ✅ works today (extra) | Phase 1 |
+| OpenAI / Outlines / xgrammar backends | 🚧 in progress | Phase 2 |
 | Review / approve flow (`review`, `approve`) | 🚧 in progress | Phase 2 |
-| Mapping proposer + backends (`propose`) | 🚧 in progress | Phase 2 |
+| Cache + schema-drift flow | 🚧 in progress | Phase 2 |
 
 See [`docs/design.md`](docs/design.md) for the full architecture and [`prd.md`](prd.md) for
 product intent.
@@ -105,25 +106,36 @@ uv add "schema-crosswalk[anthropic]"   # or [openai], [outlines], [xgrammar]
 
 ## Quickstart
 
-**Target API** — the end-to-end workflow the library is being built toward:
+**Python — the full workflow, end to end:**
 
 ```python
 from schema_crosswalk import Crosswalk
+from schema_crosswalk.backends.anthropic import AnthropicAdapter
 
-cw = Crosswalk()                                     # configure a backend + cache
-profile = cw.profile("customers.csv")                # infer source shape (ID-safe)
-mapping = cw.propose(profile, target_schema=SCHEMA)  # LLM picks primitives
-report  = cw.validate(mapping, target_schema=SCHEMA) # structural + confidence gating
-records = cw.execute(mapping, "customers.csv")       # deterministic, no LLM
+cw = Crosswalk(backend=AnthropicAdapter())            # needs schema-crosswalk[anthropic] + a key
+profile = cw.profile("customers.csv")                 # infer source shape (ID-safe)
+mapping = cw.propose(profile, target_schema=SCHEMA)   # LLM picks primitives (never writes code)
+report  = cw.validate(mapping, target_schema=SCHEMA)  # structural + per-field confidence gating
+records = cw.execute(mapping, "customers.csv")        # deterministic, no LLM in this path
 ```
 
-**CLI.** The grammar manifest and the executor are live today. With a mapping in hand you can
-run a messy source file through the deterministic engine right now — the repo ships a golden
-fixture under [`datasets/customers/`](datasets/customers/) you can execute:
+**CLI.** Profile a messy file, propose a mapping with an LLM, then execute it deterministically —
+the repo ships a golden fixture under [`datasets/customers/`](datasets/customers/):
 
 ```bash
 uv run crosswalk primitives          # list the 11 grammar primitives
 uv run crosswalk primitives --json   # emit the raw manifest as JSON
+
+# Infer the source shape — leading-zero ids/phones stay strings (ID-safe):
+uv run crosswalk profile datasets/customers/source.csv
+
+# Propose a mapping with an LLM (needs schema-crosswalk[anthropic] + ANTHROPIC_API_KEY):
+uv run crosswalk propose datasets/customers/source.csv \
+  --target datasets/customers/target_schema.json > mapping.json
+
+# Gate it: structural checks + per-field confidence, weak fields routed to review:
+uv run crosswalk validate --mapping mapping.json \
+  --target datasets/customers/target_schema.json --source datasets/customers/source.csv
 
 # Deterministic execution — no LLM, byte-identical output every run:
 uv run crosswalk execute \
@@ -132,15 +144,10 @@ uv run crosswalk execute \
 # -> out.jsonl matches datasets/customers/expected.jsonl exactly
 ```
 
-`execute` structurally checks the mapping (version pins, arity, param schemas, backward-only
-composition refs) and fails closed on a bad document. The steps that produce a mapping in the
-first place need the profiler and LLM proposer, and land next:
-
-```bash
-uv run crosswalk profile  customers.csv > profile.json                        # planned
-uv run crosswalk propose  profile.json --target schema.json > mapping.json    # planned
-uv run crosswalk validate mapping.json --target schema.json                   # planned
-```
+`execute` and `validate` fail closed on a bad document (version pins, arity, param schemas,
+backward-only composition refs, target coverage). The core library installs and runs
+`profile` / `validate` / `execute` **without any backend** — only `propose` needs a model extra.
+`review` / `approve` are scaffolded and land next.
 
 ## The primitive grammar
 

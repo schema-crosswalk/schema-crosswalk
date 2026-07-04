@@ -29,9 +29,38 @@ def test_primitives_json(capsys: pytest.CaptureFixture[str]) -> None:
 
 
 def test_unimplemented_subcommand_exits_nonzero(capsys: pytest.CaptureFixture[str]) -> None:
-    rc = main(["profile"])
+    rc = main(["review"])
     assert rc == 2
     assert "not implemented" in capsys.readouterr().err
+
+
+def test_profile_emits_id_safe_types(capsys: pytest.CaptureFixture[str]) -> None:
+    rc = main(["profile", str(_DATASETS / "customers" / "source.csv")])
+    assert rc == 0
+    profile = json.loads(capsys.readouterr().out)
+    by_path = {f["path"]: f for f in profile["fields"]}
+    # Leading-zero id/phone stay string (ID-safe); epoch/cents widen to integer.
+    assert by_path["id"]["inferred_type"] == "string"
+    assert by_path["phone"]["inferred_type"] == "string"
+    assert by_path["price_cents"]["inferred_type"] == "integer"
+    assert profile["fingerprint"].startswith("sha256:")
+
+
+def test_validate_golden_mapping(capsys: pytest.CaptureFixture[str]) -> None:
+    case = _DATASETS / "customers"
+    rc = main(
+        [
+            "validate",
+            "--mapping",
+            str(case / "mapping.json"),
+            "--target",
+            str(case / "target_schema.json"),
+        ]
+    )
+    assert rc == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["ok"] is True
+    assert report["errors"] == []
 
 
 def test_execute_golden_customers(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:

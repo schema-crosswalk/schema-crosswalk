@@ -89,7 +89,13 @@ class Crosswalk:
         assemble_nested: bool = False,
         allow_unreviewed: bool = False,
     ) -> ExecutionResult:
-        raise NotImplementedError(
-            "Facade file execution is not implemented yet; see execute.execute_records / "
-            "execute.execute_file."
+        from . import profile as _profile
+        from .execute import execute_records
+
+        records = _profile._read_records(Path(source))
+        return execute_records(
+            mapping,
+            records,
+            assemble_nested=assemble_nested,
+            allow_unreviewed=allow_unreviewed,
         )
